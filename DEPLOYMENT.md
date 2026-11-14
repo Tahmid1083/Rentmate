@@ -42,20 +42,9 @@ back up on the next request.
 
 3. **Create a Web Service on Render.**
    - New → Web Service → connect your GitHub repo.
-   - Environment: **PHP** (Render auto-detects from `composer.json`).
-   - Build command:
-     ```bash
-     composer install --no-dev --optimize-autoloader && \
-     php artisan key:generate --force && \
-     php artisan migrate --force && \
-     php artisan storage:link
-     ```
-     (Add `&& php artisan config:cache && php artisan route:cache` for
-     production speed after first deploy works.)
-   - Start command:
-     ```bash
-     php artisan serve --host 0.0.0.0 --port $PORT
-     ```
+   - Select **Docker** so Render uses the repository's `Dockerfile`.
+     It installs Composer dependencies and runs migrations at startup.
+     Do not put `php artisan key:generate` in a build or start command.
    - Free instance type: **Yes.**
 
 4. **Environment variables** (Render → Environment tab):
@@ -63,16 +52,36 @@ back up on the next request.
    APP_ENV=production
    APP_DEBUG=false
    APP_URL=https://<your-service>.onrender.com
-   APP_KEY=            (leave empty; the build step generates it)
+   APP_KEY=base64:...  (generate locally with `php artisan key:generate --show`,
+                        then paste the complete output here)
    DB_CONNECTION=pgsql
    DB_URL=postgres://...    (your Render Postgres internal URL)
    SESSION_DRIVER=database
    FILESYSTEM_DISK=local
    ```
+   `APP_KEY` must be a non-empty, persistent Render environment variable.
+   Do not leave it blank, generate it during each deploy, or commit it to
+   GitHub. Laravel uses this key to encrypt cookies and sessions. Set
+   `APP_DEBUG=false` in production to avoid exposing exception details.
    For MySQL set `DB_CONNECTION=mysql` and `DB_HOST`, `DB_PORT`,
    `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` instead of `DB_URL`.
 
-5. Deploy. The first cold start takes ~30s; subsequent requests are fast.
+5. Save the environment variables and deploy. The first cold start takes
+   ~30s; subsequent requests are fast.
+
+If you already created the service with a native PHP runtime rather than
+Docker, add the same environment variables in its Environment tab. Use
+`composer install --no-dev --optimize-autoloader` as the build command and
+`php artisan serve --host 0.0.0.0 --port $PORT` as the start command; run
+`php artisan migrate --force` from the Render Shell after connecting the
+database. Never rely on a build command to generate `APP_KEY` for the
+running service.
+
+For an existing service showing **"No application encryption key has been
+specified"**, add `APP_KEY` in Render → your service → Environment using
+the locally generated value above, and set `APP_DEBUG=false`. Save the
+changes; if Render does not deploy automatically, choose **Manual Deploy
+→ Deploy latest commit**.
 
 > Render's free PostgreSQL expires after 90 days. For a longer-lived
 > free database, see **Option C** (InfinityFree) or use a free Neon /
@@ -93,7 +102,7 @@ weeks of an MVP). PHP is auto-detected.
    APP_ENV=production
    APP_DEBUG=false
    APP_URL=https://<your-app>.up.railway.app
-   APP_KEY=base64:...     (run `php artisan key:generate` locally and paste)
+   APP_KEY=base64:...     (run `php artisan key:generate --show` locally and paste)
    DB_CONNECTION=mysql
    DB_HOST=...             (Railway exposes these automatically as MYSQL_* vars)
    DB_PORT=3306
@@ -202,12 +211,16 @@ installed locally.
 Run once after the first deploy:
 
 ```bash
-php artisan key:generate --force    # if APP_KEY is empty
 php artisan migrate --force         # build tables
 php artisan storage:link            # public storage symlink
 php artisan config:cache            # optional, speeds up app
 php artisan route:cache             # optional, speeds up app
 ```
+
+Set a persistent `APP_KEY` in the hosting provider's environment settings
+before deploying. Generate its value locally with
+`php artisan key:generate --show`; do not commit it or regenerate it on
+every deploy.
 
 If you ever change env variables or routes, clear caches:
 
@@ -342,8 +355,9 @@ Schedule::command('rent:recompute-statuses')->dailyAt('00:30');
 ## Troubleshooting
 
 - **500 / "No application encryption key has been specified"** — run
-  `php artisan key:generate` and ensure `APP_KEY` is set in the host's
-  env-var panel.
+  `php artisan key:generate --show` locally, then set the complete output
+  as the persistent `APP_KEY` environment variable in the host's settings.
+  Redeploy after saving it. Do not generate a different key on each restart.
 - **Maintenance photos don't display** — run `php artisan storage:link`,
   or check that the `public/storage` symlink points to
   `storage/app/public` on the host.

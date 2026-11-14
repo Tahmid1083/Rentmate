@@ -32,12 +32,6 @@ RUN chown -R www-data:www-data /var/www \
 ENV PORT=10000
 EXPOSE 10000
 
-# On container start: generate app key if missing, run migrations, link
-# storage, cache config + routes, then boot Laravel's built-in server on $PORT.
-CMD sh -c "\
-    php artisan key:generate --force && \
-    php artisan migrate --force && \
-    php artisan storage:link || true && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan serve --host 0.0.0.0 --port \"\${PORT:-8000}\""
+# Require a persistent key from the hosting environment; never rotate it on
+# container restarts because Laravel uses it to encrypt sessions and cookies.
+CMD ["sh", "-c", "if [ -z \"${APP_KEY:-}\" ]; then echo 'APP_KEY must be set in the Render environment.' >&2; exit 1; fi; php artisan migrate --force && (php artisan storage:link || true) && php artisan config:cache && php artisan route:cache && php artisan serve --host 0.0.0.0 --port \"${PORT:-8000}\""]
