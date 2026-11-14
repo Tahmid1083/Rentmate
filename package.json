@@ -1,0 +1,7 @@
+{
+    "private": true,
+    "type": "project",
+    "scripts": {
+        "dev": "echo 'No frontend build step needed — UI is pure Blade + inline CSS.'"
+    }
+}
