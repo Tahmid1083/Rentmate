@@ -9,6 +9,7 @@ use App\Models\Property;
 use App\Models\RentInvoice;
 use App\Models\TenantLease;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
@@ -34,7 +35,7 @@ class ReportController extends Controller
                 'years'          => collect([now()->year, now()->year - 1, now()->year - 2]),
                 'monthlyIncome'  => array_fill(0, 12, 0),
                 'monthlyExpense' => array_fill(0, 12, 0),
-                'expenseBreakdown' => [],
+                'expenseBreakdown' => collect(),
                 'occupancyRate'  => 0,
                 'occupiedCount'  => 0,
                 'totalUnits'     => 0,
@@ -43,36 +44,34 @@ class ReportController extends Controller
                 'totalExpense'   => 0,
                 'expiringLeases' => collect(),
                 'topOutstanding' => collect(),
-                'maintenanceBreakdown' => [],
+                'maintenanceBreakdown' => collect(),
             ]);
         }
 
         // ----- Monthly income (payments) for selected year -----
         $incomeRows = DB::table('payments')
-            ->selectRaw('MONTH(paid_on) AS m, SUM(amount) AS total')
             ->whereIn('rent_invoice_id', function ($q) use ($unitIds) {
                 $q->select('id')->from('rent_invoices')->whereIn('unit_id', $unitIds);
             })
             ->whereYear('paid_on', $year)
-            ->groupByRaw('MONTH(paid_on)')
-            ->pluck('total', 'm');
+            ->get(['paid_on', 'amount']);
 
-        $monthlyIncome = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $monthlyIncome[$i - 1] = (float) ($incomeRows[$i] ?? 0);
+        $monthlyIncome = array_fill(0, 12, 0);
+        foreach ($incomeRows as $row) {
+            $month = Carbon::parse($row->paid_on)->month - 1;
+            $monthlyIncome[$month] += (float) $row->amount;
         }
 
         // ----- Monthly expenses for selected year -----
         $expenseRows = DB::table('expenses')
-            ->selectRaw('MONTH(incurred_on) AS m, SUM(amount) AS total')
             ->where('user_id', $user->id)
             ->whereYear('incurred_on', $year)
-            ->groupByRaw('MONTH(incurred_on)')
-            ->pluck('total', 'm');
+            ->get(['incurred_on', 'amount']);
 
-        $monthlyExpense = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $monthlyExpense[$i - 1] = (float) ($expenseRows[$i] ?? 0);
+        $monthlyExpense = array_fill(0, 12, 0);
+        foreach ($expenseRows as $row) {
+            $month = Carbon::parse($row->incurred_on)->month - 1;
+            $monthlyExpense[$month] += (float) $row->amount;
         }
 
         // ----- Expense breakdown by category -----

@@ -11,7 +11,7 @@
         <div class="empty">No payments recorded yet.</div>
     @else
         <table>
-            <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Invoice</th><th>Tenant</th></tr></thead>
+            <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Invoice</th><th>Tenant</th><th></th></tr></thead>
             <tbody>
                 @foreach ($payments as $p)
                     <tr>
@@ -20,6 +20,7 @@
                         <td class="muted">{{ \App\Models\Payment::METHODS[$p->method] ?? $p->method }}</td>
                         <td><a href="{{ route('rent-invoices.show', $p->invoice) }}">{{ $p->invoice->invoice_number }}</a></td>
                         <td>{{ $p->invoice->lease?->tenant_name ?: '-' }}</td>
+                        <td><a href="{{ route('payments.receipt', $p) }}" class="btn secondary sm">Receipt</a></td>
                     </tr>
                 @endforeach
             </tbody>

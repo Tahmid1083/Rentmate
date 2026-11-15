@@ -63,6 +63,7 @@ Route::middleware('auth')->group(function () {
 
     // Payments
     Route::resource('payments', PaymentController::class)->only(['index', 'show', 'destroy']);
+    Route::get('payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
     Route::get('payments-export/csv', [PaymentController::class, 'exportCsv'])->name('payments.export.csv');
 
     // Maintenance requests with photo uploads

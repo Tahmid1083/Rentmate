@@ -11,6 +11,7 @@
         <dt>Notes</dt><dd>{{ $payment->notes ?: '-' }}</dd>
     </dl>
     <div class="row" style="margin-top:14px;">
+        <a href="{{ route('payments.receipt', $payment) }}" class="btn">Generate receipt</a>
         <a href="{{ route('rent-invoices.show', $payment->invoice) }}" class="btn secondary">Back to invoice</a>
     </div>
 </div>

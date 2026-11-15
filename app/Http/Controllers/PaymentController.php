@@ -63,6 +63,16 @@ class PaymentController extends Controller
         return view('rent.payment-show', compact('payment'));
     }
 
+    public function receipt(Request $request, Payment $payment)
+    {
+        $this->authorizePayment($request, $payment);
+
+        $payment->load('invoice.unit.property', 'invoice.lease');
+        $setting = $request->user()->setting;
+
+        return view('rent.payment-receipt', compact('payment', 'setting'));
+    }
+
     public function destroy(Request $request, Payment $payment)
     {
         $this->authorizePayment($request, $payment);

@@ -88,7 +88,7 @@
         <div class="empty">No payments recorded yet.</div>
     @else
         <table>
-            <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Reference</th><th></th></tr></thead>
+            <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Reference</th><th></th><th></th></tr></thead>
             <tbody>
                 @foreach ($rentInvoice->payments as $p)
                     <tr>
@@ -96,6 +96,7 @@
                         <td>${{ number_format((float) $p->amount, 2) }}</td>
                         <td class="muted">{{ \App\Models\Payment::METHODS[$p->method] ?? $p->method }}</td>
                         <td class="muted">{{ $p->reference ?: '-' }}</td>
+                        <td><a href="{{ route('payments.receipt', $p) }}" class="btn secondary sm">Receipt</a></td>
                         <td>
                             <form method="post" action="{{ route('payments.destroy', $p) }}" style="display:inline;"
                                   onsubmit="return confirm('Remove this payment?');">
