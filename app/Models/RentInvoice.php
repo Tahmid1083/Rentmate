@@ -19,6 +19,8 @@ class RentInvoice extends Model
         'billing_period_start',
         'billing_period_end',
         'due_date',
+        'invoice_total',
+        'advance_credit',
         'amount_due',
         'status',
     ];
@@ -27,6 +29,8 @@ class RentInvoice extends Model
         'billing_period_start' => 'date',
         'billing_period_end'   => 'date',
         'due_date'             => 'date',
+        'invoice_total'        => 'decimal:2',
+        'advance_credit'       => 'decimal:2',
         'amount_due'           => 'decimal:2',
     ];
 
@@ -68,7 +72,7 @@ class RentInvoice extends Model
     }
 
     /**
-     * Outstanding balance = amount due − paid.
+     * Outstanding balance = amount due after advance credit − paid.
      */
     public function getBalanceAttribute(): string
     {
@@ -83,7 +87,7 @@ class RentInvoice extends Model
         $paid   = (float) $this->paid_amount;
         $due    = (float) $this->amount_due;
 
-        if ($paid >= $due && $due > 0) {
+        if ($due <= 0 || $paid >= $due) {
             $this->status = self::STATUS_PAID;
         } elseif ($paid > 0) {
             $this->status = self::STATUS_PARTIAL;

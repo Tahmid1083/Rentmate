@@ -81,6 +81,8 @@ class DatabaseSeeder extends Seeder
             'billing_period_start' => now()->startOfMonth(),
             'billing_period_end'   => now()->endOfMonth(),
             'due_date'             => now()->startOfMonth()->addDays(5),
+            'invoice_total'        => 1200,
+            'advance_credit'       => 0,
             'amount_due'           => 1200,
             'status'               => RentInvoice::STATUS_OPEN,
         ]);

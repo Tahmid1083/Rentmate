@@ -34,6 +34,8 @@ uploads) and private landlord documents — all behind a login.
 
 ### Rent invoicing & payments
 - `RentInvoice` stores the invoice; `Payment` records each payment.
+- Invoices show the original amount, optional advance-rent credit, and
+  amount due after the credit.
 - Balance = `amount_due − sum(payments)`.
 - Status (open / partial / paid / overdue) is recomputed on every change.
 - **Late fee** computed from landlord settings (grace days + flat fee + % of outstanding).

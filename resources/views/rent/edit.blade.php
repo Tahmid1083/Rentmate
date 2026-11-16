@@ -18,8 +18,13 @@
                 <input type="date" name="due_date" id="due_date" value="{{ old('due_date', $rentInvoice->due_date->format('Y-m-d')) }}" required>
             </div>
             <div class="form-group">
-                <label for="amount_due">Amount due ($) *</label>
-                <input type="number" name="amount_due" id="amount_due" step="0.01" min="0" value="{{ old('amount_due', $rentInvoice->amount_due) }}" required>
+                <label for="invoice_total">Invoice amount ($) *</label>
+                <input type="number" name="invoice_total" id="invoice_total" step="0.01" min="0" value="{{ old('invoice_total', $rentInvoice->invoice_total) }}" required>
+            </div>
+            <div class="form-group">
+                <label for="advance_credit">Advance credit ($)</label>
+                <input type="number" name="advance_credit" id="advance_credit" step="0.01" min="0" value="{{ old('advance_credit', $rentInvoice->advance_credit) }}">
+                <small class="muted">Deducted from the invoice amount; it is not recorded as a payment.</small>
             </div>
         </div>
         <div class="row">

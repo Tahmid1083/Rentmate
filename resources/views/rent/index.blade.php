@@ -13,7 +13,7 @@
     @else
         <table>
             <thead>
-                <tr><th>Invoice</th><th>Tenant</th><th>Unit</th><th>Due</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Status</th></tr>
+                <tr><th>Invoice</th><th>Tenant</th><th>Unit</th><th>Due date</th><th>Invoice amount</th><th>Advance credit</th><th>Amount due</th><th>Paid</th><th>Balance</th><th>Status</th></tr>
             </thead>
             <tbody>
                 @foreach ($invoices as $inv)
@@ -22,6 +22,8 @@
                         <td>{{ $inv->lease?->tenant_name ?: '-' }}</td>
                         <td class="muted">{{ $inv->unit?->label ?: '-' }}</td>
                         <td>{{ $inv->due_date->format('Y-m-d') }}</td>
+                        <td>${{ number_format((float) $inv->invoice_total, 2) }}</td>
+                        <td>${{ number_format((float) $inv->advance_credit, 2) }}</td>
                         <td>${{ number_format((float) $inv->amount_due, 2) }}</td>
                         <td>${{ number_format((float) $inv->paid_amount, 2) }}</td>
                         <td>${{ number_format((float) $inv->balance, 2) }}</td>

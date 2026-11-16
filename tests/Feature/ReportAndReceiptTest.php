@@ -119,6 +119,8 @@ class ReportAndReceiptTest extends TestCase
             'billing_period_start' => now()->startOfMonth()->toDateString(),
             'billing_period_end' => now()->endOfMonth()->toDateString(),
             'due_date' => now()->endOfMonth()->toDateString(),
+            'invoice_total' => 1250,
+            'advance_credit' => 0,
             'amount_due' => 1250,
             'status' => RentInvoice::STATUS_PAID,
         ]);

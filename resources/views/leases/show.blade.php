@@ -36,13 +36,15 @@
         <div class="empty">No invoices yet.</div>
     @else
         <table>
-            <thead><tr><th>Invoice</th><th>Period</th><th>Due</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead>
+            <thead><tr><th>Invoice</th><th>Period</th><th>Due date</th><th>Invoice amount</th><th>Advance credit</th><th>Amount due</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead>
             <tbody>
                 @foreach ($lease->rentInvoices as $inv)
                     <tr>
                         <td><a href="{{ route('rent-invoices.show', $inv) }}">{{ $inv->invoice_number }}</a></td>
                         <td class="muted">{{ $inv->billing_period_start->format('Y-m') }}</td>
                         <td>{{ $inv->due_date->format('Y-m-d') }}</td>
+                        <td>${{ number_format((float) $inv->invoice_total, 2) }}</td>
+                        <td>${{ number_format((float) $inv->advance_credit, 2) }}</td>
                         <td>${{ number_format((float) $inv->amount_due, 2) }}</td>
                         <td>${{ number_format((float) $inv->paid_amount, 2) }}</td>
                         <td>${{ number_format((float) $inv->balance, 2) }}</td>

@@ -1,6 +1,18 @@
 @extends('layouts.app')
 @section('title', 'New lease')
 @section('content')
+@if ($units->isEmpty())
+    <div class="card" style="max-width:760px;">
+        <div class="empty">
+            <p>No units are available for a lease yet.</p>
+            <p>Create a property and add a unit first, then return here to add the tenant lease.</p>
+            <div class="row" style="justify-content:center;">
+                <a href="{{ route('properties.create') }}" class="btn">+ Add property</a>
+                <a href="{{ route('properties.index') }}" class="btn secondary">View properties</a>
+            </div>
+        </div>
+    </div>
+@else
 <div class="card" style="max-width:760px;">
     <form method="post" action="{{ route('leases.store') }}">
         @csrf
@@ -63,4 +75,5 @@
         </div>
     </form>
 </div>
+@endif
 @endsection

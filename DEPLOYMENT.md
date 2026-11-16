@@ -33,21 +33,40 @@ back up on the next request.
      git push -u origin main
      ```
 
-2. **Create a free database.**
+2. **Create the Render Blueprint.**
+   - In Render, choose **New → Blueprint** and connect this repository.
+   - Render reads [`render.yaml`](./render.yaml), creates the Docker web
+     service and PostgreSQL database, and connects them automatically.
+   - Before creating the Blueprint, generate an app key locally with
+     `php artisan key:generate --show`. Enter that complete value for
+     `APP_KEY` when prompted, and enter the public HTTPS URL Render assigns
+     to the service for `APP_URL`.
+   - Keep `APP_KEY` unchanged on later deploys.
+
+3. **Deploy and finish setup.**
+   - Approve the Blueprint resources and deploy. The Docker startup command
+     runs database migrations before starting Laravel.
+   - Register your landlord account, then add a property, a unit, and a
+     tenant lease. Invoices are created for leases, so the invoice form has
+     no lease to select until those records exist.
+
+If you prefer manual setup, use the following steps instead of the Blueprint:
+
+1. **Create a free database.**
    - On Render, create a free **PostgreSQL** database (or use a free
      MySQL provider such as Aiven / TiDB Cloud / PlanetScale if you
      prefer MySQL — Laravel supports both).
    - Note the **internal connection URL** Render shows you
      (`postgres://user:pass@host:5432/dbname`).
 
-3. **Create a Web Service on Render.**
+2. **Create a Web Service on Render.**
    - New → Web Service → connect your GitHub repo.
    - Select **Docker** so Render uses the repository's `Dockerfile`.
      It installs Composer dependencies and runs migrations at startup.
      Do not put `php artisan key:generate` in a build or start command.
    - Free instance type: **Yes.**
 
-4. **Environment variables** (Render → Environment tab):
+3. **Environment variables** (Render → Environment tab):
    ```
    APP_ENV=production
    APP_DEBUG=false
@@ -66,7 +85,7 @@ back up on the next request.
    For MySQL set `DB_CONNECTION=mysql` and `DB_HOST`, `DB_PORT`,
    `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` instead of `DB_URL`.
 
-5. Save the environment variables and deploy. The first cold start takes
+4. Save the environment variables and deploy. The first cold start takes
    ~30s; subsequent requests are fast.
 
 If you already created the service with a native PHP runtime rather than
@@ -83,9 +102,9 @@ the locally generated value above, and set `APP_DEBUG=false`. Save the
 changes; if Render does not deploy automatically, choose **Manual Deploy
 → Deploy latest commit**.
 
-> Render's free PostgreSQL expires after 90 days. For a longer-lived
-> free database, see **Option C** (InfinityFree) or use a free Neon /
-> Supabase Postgres and point `DB_URL` at it.
+> Render's free PostgreSQL plan has a limited lifetime. Check Render's
+> current terms before storing important data, or use a paid database plan
+> for persistent production data.
 
 ---
 

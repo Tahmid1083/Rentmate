@@ -31,6 +31,9 @@
         </div>
     </div>
     <dl class="kv" style="margin-top:16px;">
+        <dt>Invoice amount</dt><dd>${{ number_format((float) $rentInvoice->invoice_total, 2) }}</dd>
+        <dt>Advance credit</dt><dd>−${{ number_format((float) $rentInvoice->advance_credit, 2) }}</dd>
+        <dt>Amount due after advance</dt><dd>${{ number_format((float) $rentInvoice->amount_due, 2) }}</dd>
         <dt>Billing period</dt><dd>{{ $rentInvoice->billing_period_start->format('Y-m-d') }} → {{ $rentInvoice->billing_period_end->format('Y-m-d') }}</dd>
         <dt>Due date</dt><dd>{{ $rentInvoice->due_date->format('Y-m-d') }}</dd>
     </dl>

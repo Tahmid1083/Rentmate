@@ -15,6 +15,8 @@
         <tr><td style="padding:6px 0;color:#64748b;">Unit</td><td style="padding:6px 0;">{{ $invoice->unit?->property?->name }} / {{ $invoice->unit?->label }}</td></tr>
         <tr><td style="padding:6px 0;color:#64748b;">Billing period</td><td style="padding:6px 0;">{{ $invoice->billing_period_start->format('Y-m-d') }} → {{ $invoice->billing_period_end->format('Y-m-d') }}</td></tr>
         <tr><td style="padding:6px 0;color:#64748b;">Due date</td><td style="padding:6px 0;">{{ $invoice->due_date->format('Y-m-d') }}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b;">Invoice amount</td><td style="padding:6px 0;">${{ number_format((float) $invoice->invoice_total, 2) }}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b;">Advance credit</td><td style="padding:6px 0;">−${{ number_format((float) $invoice->advance_credit, 2) }}</td></tr>
         <tr><td style="padding:6px 0;color:#64748b;">Amount due</td><td style="padding:6px 0;"><strong>${{ number_format((float) $invoice->amount_due, 2) }}</strong></td></tr>
     </table>
     <p style="color:#64748b;font-size:12px;">This is an automated message from your Rental Manager.</p>

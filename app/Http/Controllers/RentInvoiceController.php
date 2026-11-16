@@ -40,15 +40,19 @@ class RentInvoiceController extends Controller
             'billing_period_start' => ['required', 'date'],
             'billing_period_end'   => ['required', 'date', 'after_or_equal:billing_period_start'],
             'due_date'             => ['required', 'date'],
-            'amount_due'           => ['required', 'numeric', 'min:0'],
+            'invoice_total'        => ['required', 'numeric', 'min:0', 'max:99999999.99', 'decimal:0,2'],
+            'advance_credit'       => ['nullable', 'numeric', 'min:0', 'max:99999999.99', 'decimal:0,2', 'lte:invoice_total'],
         ]);
 
         $lease = TenantLease::with('unit')->findOrFail($data['tenant_lease_id']);
         $this->authorizeLease($request, $lease);
 
+        $data = $this->applyAdvanceCredit($data);
         $data['unit_id']        = $lease->unit_id;
         $data['invoice_number'] = $this->generateInvoiceNumber();
-        $data['status']         = RentInvoice::STATUS_OPEN;
+        $data['status']         = (float) $data['amount_due'] <= 0
+            ? RentInvoice::STATUS_PAID
+            : RentInvoice::STATUS_OPEN;
 
         $invoice = RentInvoice::create($data);
 
@@ -91,9 +95,26 @@ class RentInvoiceController extends Controller
             'billing_period_start' => ['required', 'date'],
             'billing_period_end'   => ['required', 'date', 'after_or_equal:billing_period_start'],
             'due_date'             => ['required', 'date'],
-            'amount_due'           => ['required', 'numeric', 'min:0'],
+            'invoice_total'        => [
+                'required',
+                'numeric',
+                'min:0',
+                'max:99999999.99',
+                'decimal:0,2',
+                function ($attribute, $value, $fail) use ($request, $rentInvoice) {
+                    $advanceCredit = $request->input('advance_credit', 0);
+                    if (
+                        is_numeric($advanceCredit)
+                        && (float) $value - (float) $advanceCredit < (float) $rentInvoice->paid_amount
+                    ) {
+                        $fail('The amount due after advance cannot be less than payments already recorded.');
+                    }
+                },
+            ],
+            'advance_credit'       => ['nullable', 'numeric', 'min:0', 'max:99999999.99', 'decimal:0,2', 'lte:invoice_total'],
         ]);
 
+        $data = $this->applyAdvanceCredit($data);
         $rentInvoice->update($data);
         $rentInvoice->recomputeStatus();
 
@@ -114,6 +135,15 @@ class RentInvoiceController extends Controller
     protected function generateInvoiceNumber(): string
     {
         return 'INV-' . now()->year . '-' . strtoupper(Str::random(8));
+    }
+
+    protected function applyAdvanceCredit(array $data): array
+    {
+        $data['invoice_total'] = number_format((float) $data['invoice_total'], 2, '.', '');
+        $data['advance_credit'] = number_format((float) ($data['advance_credit'] ?? 0), 2, '.', '');
+        $data['amount_due'] = bcsub($data['invoice_total'], $data['advance_credit'], 2);
+
+        return $data;
     }
 
     protected function landlordLeases(Request $request)

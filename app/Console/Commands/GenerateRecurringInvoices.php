@@ -67,6 +67,8 @@ class GenerateRecurringInvoices extends Command
                 'billing_period_start' => $start,
                 'billing_period_end'   => $end,
                 'due_date'             => $due,
+                'invoice_total'        => $lease->monthly_rent,
+                'advance_credit'       => 0,
                 'amount_due'           => $lease->monthly_rent,
                 'status'               => RentInvoice::STATUS_OPEN,
             ]);

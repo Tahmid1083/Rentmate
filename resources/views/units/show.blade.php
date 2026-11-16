@@ -10,7 +10,7 @@
         <span class="spacer"></span>
         <a href="{{ route('units.edit', $unit) }}" class="btn secondary">Edit</a>
         <form method="post" action="{{ route('units.destroy', $unit) }}" style="display:inline;"
-              onsubmit="return confirm('Delete this unit and all related data?');">
+              onsubmit="return confirm('Deleting this unit also deletes its leases, invoices, payments, and maintenance requests. Continue?');">
             @csrf @method('DELETE')
             <button class="btn danger" type="submit">Delete</button>
         </form>

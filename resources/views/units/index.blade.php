@@ -21,7 +21,14 @@
                         <td>
                             @if ($u->is_occupied) <span class="badge active">occupied</span> @else <span class="badge expired">vacant</span> @endif
                         </td>
-                        <td><a href="{{ route('units.show', $u) }}" class="btn secondary sm">View</a></td>
+                        <td style="white-space:nowrap;">
+                            <a href="{{ route('units.show', $u) }}" class="btn secondary sm">View</a>
+                            <form method="post" action="{{ route('units.destroy', $u) }}" style="display:inline;"
+                                  onsubmit="return confirm('Deleting this unit also deletes its leases, invoices, payments, and maintenance requests. Continue?');">
+                                @csrf @method('DELETE')
+                                <button class="btn danger sm" type="submit">Delete</button>
+                            </form>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

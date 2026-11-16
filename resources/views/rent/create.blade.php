@@ -1,6 +1,18 @@
 @extends('layouts.app')
 @section('title', 'New invoice')
 @section('content')
+@if ($leases->isEmpty())
+    <div class="card" style="max-width:680px;">
+        <div class="empty">
+            <p>No tenant leases are available to invoice yet.</p>
+            <p>Add a property and a unit, then create a tenant lease before creating an invoice.</p>
+            <div class="row" style="justify-content:center;">
+                <a href="{{ route('properties.create') }}" class="btn">+ Add property</a>
+                <a href="{{ route('leases.create') }}" class="btn secondary">Create lease</a>
+            </div>
+        </div>
+    </div>
+@else
 <div class="card" style="max-width:680px;">
     <form method="post" action="{{ route('rent-invoices.store') }}">
         @csrf
@@ -30,8 +42,13 @@
                 <input type="date" name="due_date" id="due_date" value="{{ old('due_date', date('Y-m-05')) }}" required>
             </div>
             <div class="form-group">
-                <label for="amount_due">Amount due ($) *</label>
-                <input type="number" name="amount_due" id="amount_due" step="0.01" min="0" value="{{ old('amount_due') }}" required>
+                <label for="invoice_total">Invoice amount ($) *</label>
+                <input type="number" name="invoice_total" id="invoice_total" step="0.01" min="0" value="{{ old('invoice_total') }}" required>
+            </div>
+            <div class="form-group">
+                <label for="advance_credit">Advance credit ($)</label>
+                <input type="number" name="advance_credit" id="advance_credit" step="0.01" min="0" value="{{ old('advance_credit', '0.00') }}">
+                <small class="muted">Deducted from the invoice amount; it is not recorded as a payment.</small>
             </div>
         </div>
         <div class="row">
@@ -40,4 +57,5 @@
         </div>
     </form>
 </div>
+@endif
 @endsection
